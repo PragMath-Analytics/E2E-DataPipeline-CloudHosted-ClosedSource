@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: franchises
-    database: analytics
-    schema: raw_google_sheets
+    database: raw
+    schema: gsheets
     tables:
       - name: actives
         identifier: franchise_actives
