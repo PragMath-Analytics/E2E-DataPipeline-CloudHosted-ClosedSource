@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: nba
-    database: analytics
-    schema: raw_nba
+    database: raw
+    schema: gcp_postgresql_nba_data
     tables:
       - name: games
         identifier: games_response

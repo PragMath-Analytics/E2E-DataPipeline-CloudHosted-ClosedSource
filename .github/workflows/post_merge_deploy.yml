@@ -15,16 +15,6 @@ jobs:
       DBT_USER: ${{ secrets.DBT_USER }}
       DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
       DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-      SLING_USER: ${{ secrets.SLING_USER }}
-      SLING_PASSWORD: ${{ secrets.SLING_PASSWORD }}
-      BDB_USER: ${{ secrets.BDB_USER }}
-      BDB_PASSWORD: ${{ secrets.BDB_PASSWORD }}
-      B_DATABASE_HOST: ${{ secrets.B_DATABASE_HOST }}
-      B_DATABASE_PORT: ${{ secrets.B_DATABASE_PORT }}
-      API_KEY: ${{ secrets.API_KEY }}
-      # Optional: SERVICE_KEY_JSON if needed for Google Storage
-      # SERVICE_KEY_JSON: ${{ secrets.SERVICE_KEY_JSON }}
 
     steps:
       - name: Checkout branch
@@ -34,54 +24,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-        
-      - name: Install dependencies
-        run: |
-          pip install requests pandas sqlalchemy psycopg2-binary pyyaml
-
-      - name: Run weather loading script
-        working-directory: api_data_load
-        run: python weatherapi_data_load.py
-
-      - name: Install Sling
-        run: |
-          pip install sling
-          sling --version
-
-      - name: Create env.yaml from template
-        run: |
-          cp ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env_template.yaml ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          
-          ESCAPED_BDB_PASSWORD=$(printf '%s' "${BDB_PASSWORD}" | sed 's/[\/&]/\\&/g')
-          sed -i "s|<DATABASE_HOST>|${DATABASE_HOST}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<DATABASE_PORT>|${DATABASE_PORT}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<SLING_USER>|${SLING_USER}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<SLING_PASSWORD>|${SLING_PASSWORD}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<BDB_USER>|${BDB_USER}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<BDB_PASSWORD>|${ESCAPED_BDB_PASSWORD}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<B_DATABASE_HOST>|${B_DATABASE_HOST}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          sed -i "s|<B_DATABASE_PORT>|${B_DATABASE_PORT}|g" ${GITHUB_WORKSPACE}/_project_docs/sling_auto/env.yaml
-          
-      - name: Create service key file
-        run: |
-          echo "$SERVICE_KEY_JSON" > ${GITHUB_WORKSPACE}/service_key.json
-        env:
-          SERVICE_KEY_JSON: ${{ secrets.SERVICE_KEY_JSON }}
-
-      - name: Run Sling Data Loader - NBA Replication
-        working-directory: sling
-        run: |
-          export SLING_HOME_DIR="${GITHUB_WORKSPACE}/_project_docs/sling_auto"
-          sling run -r replication-nba.yaml
-
-      - name: Run Sling Data Loader - Franchise Replication
-        working-directory: sling
-        run: |
-          export SLING_HOME_DIR="${GITHUB_WORKSPACE}/_project_docs/sling_auto" 
-          sling run -r replication-franchise.yaml
           
       - name: Install dbt
-        run: pip install dbt-core==1.8.7 dbt-postgres==1.8.2
+        run: pip install dbt-snowflake
 
       - name: Install dbt Packages
         run: dbt deps
@@ -89,5 +34,6 @@ jobs:
       - name: Deploy & Test Models (Prod)
         run: > 
           dbt build
+          --exclude stg_weatherapi__weather latest_weather_day
           --profiles-dir _project_docs/automation
           --target prod

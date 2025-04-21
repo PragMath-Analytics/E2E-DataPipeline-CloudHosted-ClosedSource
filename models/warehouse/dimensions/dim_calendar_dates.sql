@@ -21,23 +21,33 @@ final as (
  
         -- Descriptive Values
         date_day::date as date_day,
-        extract(isodow from date_day) as day_of_week_number,
-        extract(day from date_day) as day_of_month_number,
-        extract(doy from date_day) as day_of_year_number,
+        dayofweek(date_day) + 1 as day_of_week_number,
+        dayofmonth(date_day) as day_of_month_number,
+        dayofyear(date_day) as day_of_year_number,
 
-        extract(week from date_day) as week_of_year_number,
-        extract(month from date_day) as month_of_year_number,
-        extract(quarter from date_day) as quarter_of_year_number,
-        extract(year from date_day) as year_number,
+        week(date_day) as week_of_year_number,
+        month(date_day) as month_of_year_number,
+        quarter(date_day) as quarter_of_year_number,
+        year(date_day) as year_number,
 
-        to_char(date_day, 'Dy') as short_weekday_name,
-        to_char(date_day, 'Day') as full_weekday_name,
-        to_char(date_day, 'Mon') as short_month_name,
-        to_char(date_day, 'Month') as full_month_name,
+        dayname(date_day) as short_weekday_name,
+        
+        case dayofweek(date_day)
+            when 0 then 'Sunday'
+            when 1 then 'Monday'
+            when 2 then 'Tuesday'
+            when 3 then 'Wednesday'
+            when 4 then 'Thursday'
+            when 5 then 'Friday'
+            when 6 then 'Saturday'
+        end as full_weekday_name,
+        
+        monthname(date_day) as short_month_name,
+        to_char(date_day,'MMMM') as full_month_name,
 
-        concat(to_char(date_day, 'Mon'), ' ', extract(year from date_day)) as short_month_year,
+        concat(monthname(date_day), ' ', year(date_day)) as short_month_year,
 
-        concat(to_char(date_day, 'Month'), ' ', extract(year from date_day)) as full_month_year
+        concat(to_char(date_day,'MMMM'), ' ', year(date_day)) as full_month_year
 
     from calendar_dates
 
