@@ -1,30 +1,33 @@
 ssp_analytics:
   outputs:
     dev:
-      dbname: analytics
-      host: "{{ env_var('DATABASE_HOST') }}"
-      pass: "{{ env_var('DBT_PASSWORD') }}"
-      port: "{{ env_var('DATABASE_PORT') | int }}"
-      schema: dev_stud227T
-      threads: 1
-      type: postgres
+      type: snowflake
+      account: "{{ env_var('DATABASE_HOST') }}"
       user: "{{ env_var('DBT_USER') }}"
-    prod:
-      dbname: analytics
-      host: "{{ env_var('DATABASE_HOST') }}"
-      pass: "{{ env_var('DBT_PASSWORD') }}"
-      port: "{{ env_var('DATABASE_PORT') | int }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: developer
+      database: analytics
+      warehouse: developer_wh
       schema: public
       threads: 1
-      type: postgres
+    prod:
+      type: snowflake
+      account: "{{ env_var('DATABASE_HOST') }}"
       user: "{{ env_var('DBT_USER') }}"
-    ci:
-      dbname: analytics
-      host: "{{ env_var('DATABASE_HOST') }}"
-      pass: "{{ env_var('DBT_PASSWORD') }}"
-      port: "{{ env_var('DATABASE_PORT') | int }}"
-      schema: ci 
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: automation
+      database: analytics
+      warehouse: automation_wh
+      schema: public
       threads: 1
-      type: postgres
+    ci:
+      type: snowflake
+      account: "{{ env_var('DATABASE_HOST') }}"
       user: "{{ env_var('DBT_USER') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: automation
+      database: analytics
+      warehouse: automation_wh
+      schema: public
+      threads: 1
   target: dev
