@@ -28,6 +28,6 @@ ssp_analytics:
       role: automation
       database: analytics
       warehouse: automation_wh
-      schema: public
+      schema: ci
       threads: 1
   target: dev
