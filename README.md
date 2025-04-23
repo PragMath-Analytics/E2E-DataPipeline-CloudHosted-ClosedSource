@@ -1,8 +1,8 @@
 ## Our Data Pipeline Project
 
-This repository consists of a Data Pipeline Project that loads raw data using Sling and uses a Python script to load Weatherstack API data and uses dbt to transforms raw data sources loaded using Sling into clear, formatted models for Analytics.
+This repository consists of a Data Pipeline Project that loads raw data using Fivetran and uses a Python script to load Weatherstack API data and uses dbt to transform raw data sources loaded using Fivetran and Python script into clear, formatted models for Analytics.
 
-![Data Pipeline](images/Data_pipeline.jpg)
+![Data Pipeline](images/Data_pipeline_cloud.jpg)
 
 To learn more about the overall architecture design & strategy, check our centralized handbook:
 - [Data Architecture Handbook](https://docs.google.com/document/d/1GY9_11JGQi0TgqWVrzwd9BEdQ5UqKxSXLV8cctR9CqY/edit?usp=sharing)
@@ -12,15 +12,15 @@ To learn more about the overall architecture design & strategy, check our centra
 ### Sources:
 Raw, unformatted data loaded directly from source systems using various data tools.
 
-- **`nba_data`** – The primary source of NBA statistics data captured from an API and loaded via Sling/Airbyte.
-  - Schema: `analytics.raw_nba_data`
+- **`nba_data`** – The primary source of NBA statistics data captured from a hosted gcp postgres server and loaded via Fivetran.
+  - Database: `raw`, Schema: `gcp_postgres_nba_data`
 
-- **`google_sheets`** – Internally maintained reference sheets related to the project, loaded via Sling/Airbyte.
-  - Schema: `analytics.raw_google_sheets`
+- **`google_sheets`** – Internally maintained reference sheets related to the project, loaded via Fivetran.
+  - Database: `raw`, Schema: `gsheets`
 
 - **External API Data** – Additional datasets loaded via Python scripts as part of the CI and Production workflows.
   - These use secure API keys passed through GitHub Secrets and are integrated into the data pipeline for timely ingestion.
-  - Schema: `analytics.weather`
+  - Database: `raw`, Schema: `raw_weather`
 
 ---
 
@@ -28,26 +28,26 @@ Raw, unformatted data loaded directly from source systems using various data too
 Transformed data models and raw ingested data are organized into distinct environments for a sustainable development workflow.
 
 - **Development**
-   - Schema: `analytics.dev_[your-name]`
+   - Database: `analytics`, Schema: `dev_[your-name]`
    - One per developer to avoid conflicts or overriding changes.
 
 - **CI**
-   - Schema: `analytics.ci`
+   - Database: `analytics`, Schema: `ci`
    - An isolated schema for validating Pull Request changes.
    - **Automated workflow job sequence:**
-     1. Load data using Sling
+     1. Load data using Fivetran
      2. Ingest external API data via Python script
-     3. Run dbt build and test to validate models on data ingested using Sling
+     3. Run dbt build and test to validate models on data ingested using Fivetran
 
 - **Production**
-   - Schemas: 
-     - `analytics.staging`
-     - `analytics.warehouse`
-     - `analytics.marts`
+   - Database: `analytics`, Schemas: 
+     - `staging`
+     - `warehouse`
+     - `marts`
    - **Automated workflow job sequence:**
-     1. Load data using Sling
+     1. Load data using Fivetran
      2. Ingest external Weatherstack API data via Python script
-     3. Run dbt transformations and tests on data ingested using Sling
+     3. Run dbt transformations and tests on data ingested using Fivetran
 
 ---
 
@@ -63,7 +63,7 @@ Transformed data models and raw ingested data are organized into distinct enviro
 5. **Create a Pull Request**
    - Push your branch and request review
    - CI workflow will run the full job sequence:
-     - Sling sync
+     - Fivetran sync
      - API data ingestion
      - dbt build and tests
 6. **Merge to `main`**
@@ -76,12 +76,12 @@ Transformed data models and raw ingested data are organized into distinct enviro
 
 ### Notes
 - **API Secrets & Credentials**: Stored securely using GitHub Secrets and injected into CI/CD workflows.
-- **Sling Configs**: Refer to `sling env_template.yaml` and replication files for setting up data source syncing.
+- **Fivetran Configs**: Fivetran connectors are configured through the GitHub Secrets and called during automation workflows to run Fivetran steps.
 
 ---
 
 ### Resources:
-- Learn more about Sling in the [Sling Documentation](https://docs.slingdata.io/)
+- Learn more about Fivetran in the [Fivetran Documentation](https://fivetran.com/docs)
 - Refer to the [Weatherstack API Documentation](https://weatherstack.com/documentation) for data ingestion setup
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
 - Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions

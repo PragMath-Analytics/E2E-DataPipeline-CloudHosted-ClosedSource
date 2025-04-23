@@ -18,12 +18,6 @@ ssp_analytics
 ├── _project_docs
 │   ├── automation
 │   │   │   └── profiles.yml
-│   │──sling_auto
-│   │        └── .sling.db
-│   │        └── .sling.db-shm
-│   │        └── .sling.db-wal
-│   │        └── env_template.yaml
-│   │        └── env.yaml
 │   └── style_guide.md
 ├── analyses
 ├── api_data_load
@@ -32,9 +26,6 @@ ssp_analytics
 ├── images
 │   └── Data_pipeline.jpg
 ├── seeds
-├── sling
-│   └── replication-franchise.yaml
-│   └── replication-nba.yaml
 ├── snapshots
 ├── tests
 ├── macros
@@ -45,7 +36,7 @@ ssp_analytics
 │   ├── marts
 │   │   ├── _marts__docs.md
 │   │   ├── _marts__models.yml
-│   │   └── nba_games_detail.sql
+│   │   ├── nba_games_detail.sql
 │   │   └── latest_weather_day.sql
 │   ├── staging
 │   │   ├── nba
@@ -60,11 +51,11 @@ ssp_analytics
 │   │   │   ├── stg_gsheets__franchise_actives.yml
 │   │   │   ├── stg_gsheets__franchise_general_managers.yml
 │   │   │   └── stg_gsheets__franchise_head_coaches.sql
-│   │   │── weather_api
-│   │   │   ├── _weather__docs.md
-│   │   │   ├── _weather__sources.yml
-│   │   │   ├── _weather_api__models.yml
-│   │   │   ├── stg_weatherapi__weather.sql
+│   │   └── weather_api
+│   │       ├── _weather__docs.md
+│   │       ├── _weather__sources.yml
+│   │       ├── _weather_api__models.yml
+│   │       └── stg_weatherapi__weather.sql
 │   ├── warehouse
 │   │   ├── dimensions
 │   │   │   ├── _dimensions__docs.md
