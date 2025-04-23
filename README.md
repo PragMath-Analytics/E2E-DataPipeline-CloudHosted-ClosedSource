@@ -35,9 +35,8 @@ Transformed data models and raw ingested data are organized into distinct enviro
    - Database: `analytics`, Schema: `ci`
    - An isolated schema for validating Pull Request changes.
    - **Automated workflow job sequence:**
-     1. Load data using Fivetran
-     2. Ingest external API data via Python script
-     3. Run dbt build and test to validate models on data ingested using Fivetran
+     1. Ingest external API data via Python script
+     2. Run dbt build and test to validate models on data ingested
 
 - **Production**
    - Database: `analytics`, Schemas: 
@@ -45,9 +44,8 @@ Transformed data models and raw ingested data are organized into distinct enviro
      - `warehouse`
      - `marts`
    - **Automated workflow job sequence:**
-     1. Load data using Fivetran
-     2. Ingest external Weatherstack API data via Python script
-     3. Run dbt transformations and tests on data ingested using Fivetran
+     1. Ingest external Weatherstack API data via Python script
+     2. Run dbt transformations and tests on data ingested
 
 ---
 
@@ -63,7 +61,6 @@ Transformed data models and raw ingested data are organized into distinct enviro
 5. **Create a Pull Request**
    - Push your branch and request review
    - CI workflow will run the full job sequence:
-     - Fivetran sync
      - API data ingestion
      - dbt build and tests
 6. **Merge to `main`**
@@ -76,7 +73,6 @@ Transformed data models and raw ingested data are organized into distinct enviro
 
 ### Notes
 - **API Secrets & Credentials**: Stored securely using GitHub Secrets and injected into CI/CD workflows.
-- **Fivetran Configs**: Fivetran connectors are configured through the GitHub Secrets and called during automation workflows to run Fivetran steps.
 
 ---
 
