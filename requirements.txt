@@ -48,9 +48,10 @@ referencing==0.36.2
 requests==2.32.3
 rpds-py==0.24.0
 six==1.17.0
-sling==1.4.4
-sling-linux-amd64==1.4.4
+snowflake-connector-python==3.14.0
+snowflake-sqlalchemy==1.7.3
 sqlalchemy==2.0.40
+sqlfluff==3.3.1
 sqlparse==0.5.3
 text-unidecode==1.3
 typing-extensions==4.13.1
