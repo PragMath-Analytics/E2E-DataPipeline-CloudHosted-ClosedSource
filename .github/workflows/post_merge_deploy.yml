@@ -15,16 +15,69 @@ jobs:
       DBT_USER: ${{ secrets.DBT_USER }}
       DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
       DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      API_KEY: ${{ secrets.API_KEY }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      FIVETRAN_API_KEY: ${{ secrets.FIVETRAN_API_KEY }}
+      FIVETRAN_API_SECRET: ${{ secrets.FIVETRAN_API_SECRET }}
+      FIVETRAN_CONNECTOR_GCP: ${{ secrets.FIVETRAN_CONNECTOR_GCP }}
+      FIVETRAN_CONNECTOR_GSHACTIVES: ${{ secrets.FIVETRAN_CONNECTOR_GSHACTIVES }}
+      FIVETRAN_CONNECTOR_GSHCOACHES: ${{ secrets.FIVETRAN_CONNECTOR_GSHCOACHES }}
+      FIVETRAN_CONNECTOR_GSHGM: ${{ secrets.FIVETRAN_CONNECTOR_GSHGM }}
+
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          
+
+      - name: Install dependencies
+        run: |
+          pip install requests pandas sqlalchemy pyyaml snowflake-sqlalchemy
+
+      - name: Run weather loading script
+        working-directory: api_data_load
+        run: python weatherapi_data_load.py
+
+      - name: Trigger Connector 1
+        run: |
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GCP}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Trigger Connector 2
+        run: |
+          echo "🔁 Triggering Connector 2 Sync"
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHACTIVES}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Trigger Connector 3
+        run: |
+          echo "🔁 Triggering Connector 3 Sync"
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHCOACHES}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Trigger Connector 4
+        run: |
+          echo "🔁 Triggering Connector 4 Sync"
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHGM}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Wait for 2 minutes before running dbt (Fivetran sync delay)
+        run: |
+          echo "🕒 Waiting for syncs to complete..."
+          sleep 60  # 60 seconds = 1 minutes
+
       - name: Install dbt
         run: pip install dbt-snowflake
 
@@ -34,6 +87,5 @@ jobs:
       - name: Deploy & Test Models (Prod)
         run: > 
           dbt build
-          --exclude stg_weatherapi__weather latest_weather_day
           --profiles-dir _project_docs/automation
           --target prod

@@ -72,7 +72,7 @@ jobs:
       - name: Wait for 2 minutes before running dbt (Fivetran sync delay)
         run: |
           echo "🕒 Waiting for syncs to complete..."
-          sleep 120  # 120 seconds = 2 minutes
+          sleep 60  # 60 seconds = 1 minutes
 
       - name: Install dbt
         run: pip install dbt-snowflake
