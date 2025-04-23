@@ -17,12 +17,6 @@ jobs:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
       SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-      FIVETRAN_API_KEY: ${{ secrets.FIVETRAN_API_KEY }}
-      FIVETRAN_API_SECRET: ${{ secrets.FIVETRAN_API_SECRET }}
-      FIVETRAN_CONNECTOR_GCP: ${{ secrets.FIVETRAN_CONNECTOR_GCP }}
-      FIVETRAN_CONNECTOR_GSHACTIVES: ${{ secrets.FIVETRAN_CONNECTOR_GSHACTIVES }}
-      FIVETRAN_CONNECTOR_GSHCOACHES: ${{ secrets.FIVETRAN_CONNECTOR_GSHCOACHES }}
-      FIVETRAN_CONNECTOR_GSHGM: ${{ secrets.FIVETRAN_CONNECTOR_GSHGM }}
 
 
     steps:
@@ -41,38 +35,6 @@ jobs:
       - name: Run weather loading script
         working-directory: api_data_load
         run: python weatherapi_data_load.py
-
-      - name: Trigger Connector 1
-        run: |
-          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GCP}/force \
-            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
-            -H "Content-Type: application/json"
-
-      - name: Trigger Connector 2
-        run: |
-          echo "🔁 Triggering Connector 2 Sync"
-          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHACTIVES}/force \
-            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
-            -H "Content-Type: application/json"
-
-      - name: Trigger Connector 3
-        run: |
-          echo "🔁 Triggering Connector 3 Sync"
-          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHCOACHES}/force \
-            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
-            -H "Content-Type: application/json"
-
-      - name: Trigger Connector 4
-        run: |
-          echo "🔁 Triggering Connector 4 Sync"
-          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHGM}/force \
-            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
-            -H "Content-Type: application/json"
-
-      - name: Wait for 2 minutes before running dbt (Fivetran sync delay)
-        run: |
-          echo "🕒 Waiting for syncs to complete..."
-          sleep 60  # 60 seconds = 1 minutes
 
       - name: Install dbt
         run: pip install dbt-snowflake
