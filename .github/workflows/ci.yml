@@ -12,6 +12,11 @@ jobs:
       DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
       DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
       API_KEY: ${{ secrets.API_KEY }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
 
     steps:
       - name: Checkout branch

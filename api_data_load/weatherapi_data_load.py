@@ -21,8 +21,8 @@ SNOWFLAKE_PASSWORD = urllib.parse.quote_plus(os.environ["SNOWFLAKE_PASSWORD"])
 SNOWFLAKE_ACCOUNT = os.environ["SNOWFLAKE_ACCOUNT"]
 SNOWFLAKE_WAREHOUSE = os.environ["SNOWFLAKE_WAREHOUSE"]
 SNOWFLAKE_DATABASE = os.environ["SNOWFLAKE_DATABASE"]
-SNOWFLAKE_SCHEMA = os.environ["SNOWFLAKE_SCHEMA"]
-SNOWFLAKE_TABLE = os.environ["SNOWFLAKE_TABLE"]
+SNOWFLAKE_SCHEMA = "raw_weather"
+SNOWFLAKE_TABLE = "weather_data"
 
 # ---------- Config Loaders ----------
 def load_yaml_config(path: str) -> list:
