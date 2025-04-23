@@ -1,0 +1,9 @@
+[sqlfluff]
+dialect = snowflake
+templater = dbt
+exclude_rules = ST05, ST06, ST09, ST04, ST07, CP02, RF01, RF02, AM01, AM02
+output_line_length = 80
+ignore_templated_areas = True
+runaway_limit = 100
+
+# Feel free to change these as you like:
