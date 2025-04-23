@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: weather
-    database: analytics
+    database: raw
     schema: raw_weather
     tables:
       - name: weather_data

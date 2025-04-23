@@ -44,6 +44,5 @@ jobs:
       - name: Deploy & Test Models (CI)
         run: > 
           dbt build
-          --exclude stg_weatherapi__weather latest_weather_day
           --profiles-dir _project_docs/automation
           --target ci
