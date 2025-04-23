@@ -21,7 +21,7 @@ ssp_analytics
 │   └── style_guide.md
 ├── analyses
 ├── api_data_load
-│   └── api_config.yaml
+│   ├── api_config.yaml
 │   └── weatherapi_data_load.py
 ├── images
 │   └── Data_pipeline.jpg
