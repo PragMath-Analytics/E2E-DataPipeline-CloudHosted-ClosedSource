@@ -20,6 +20,10 @@ jobs:
       FIVETRAN_API_KEY: ${{ secrets.FIVETRAN_API_KEY }}
       FIVETRAN_API_SECRET: ${{ secrets.FIVETRAN_API_SECRET }}
       FIVETRAN_CONNECTOR_GCP: ${{ secrets.FIVETRAN_CONNECTOR_GCP }}
+      FIVETRAN_CONNECTOR_GSHACTIVES: ${{ secrets.FIVETRAN_CONNECTOR_GSHACTIVES }}
+      FIVETRAN_CONNECTOR_GSHCOACHES: ${{ secrets.FIVETRAN_CONNECTOR_GSHCOACHES }}
+      FIVETRAN_CONNECTOR_GSHGM: ${{ secrets.FIVETRAN_CONNECTOR_GSHGM }}
+
 
     steps:
       - name: Checkout branch
@@ -43,6 +47,87 @@ jobs:
           curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GCP}/force \
             -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
             -H "Content-Type: application/json"
+
+      - name: Wait for Connector 1 to complete
+        run: |
+          status=""
+          until [[ "$status" == "succeeded" ]]; do
+            echo "⏳ Waiting for Connector 1 to finish..."
+            sleep 10
+            status=$(curl -s -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+              https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GCP} | jq -r .data.status.sync_state)
+            echo "Current status: $status"
+            if [[ "$status" == "paused" ]]; then
+              echo "🚫 Connector 1 is paused. Exiting."
+              exit 1
+            fi
+          done
+
+      - name: Trigger Connector 2
+        run: |
+          echo "🔁 Triggering Connector 2 Sync"
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHACTIVES}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Wait for Connector 2 to complete
+        run: |
+          status=""
+          until [[ "$status" == "succeeded" ]]; do
+            echo "⏳ Waiting for Connector 2 to finish..."
+            sleep 10
+            status=$(curl -s -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+              https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHACTIVES} | jq -r .data.status.sync_state)
+            echo "Current status: $status"
+            if [[ "$status" == "paused" ]]; then
+              echo "🚫 Connector 2 is paused. Exiting."
+              exit 1
+            fi
+          done
+
+      - name: Trigger Connector 3
+        run: |
+          echo "🔁 Triggering Connector 3 Sync"
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHCOACHES}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Wait for Connector 3 to complete
+        run: |
+          status=""
+          until [[ "$status" == "succeeded" ]]; do
+            echo "⏳ Waiting for Connector 3 to finish..."
+            sleep 10
+            status=$(curl -s -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+              https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHCOACHES} | jq -r .data.status.sync_state)
+            echo "Current status: $status"
+            if [[ "$status" == "paused" ]]; then
+              echo "🚫 Connector 3 is paused. Exiting."
+              exit 1
+            fi
+          done
+
+      - name: Trigger Connector 4
+        run: |
+          echo "🔁 Triggering Connector 4 Sync"
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHGM}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
+
+      - name: Wait for Connector 4 to complete
+        run: |
+          status=""
+          until [[ "$status" == "succeeded" ]]; do
+            echo "⏳ Waiting for Connector 4 to finish..."
+            sleep 10
+            status=$(curl -s -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+              https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GSHGM} | jq -r .data.status.sync_state)
+            echo "Current status: $status"
+            if [[ "$status" == "paused" ]]; then
+              echo "🚫 Connector 4 is paused. Exiting."
+              exit 1
+            fi
+          done
 
       - name: Install dbt
         run: pip install dbt-snowflake
