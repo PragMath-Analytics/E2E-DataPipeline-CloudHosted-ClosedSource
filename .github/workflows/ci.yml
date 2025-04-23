@@ -11,6 +11,7 @@ jobs:
       DBT_USER: ${{ secrets.DBT_USER }}
       DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
       DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      API_KEY: ${{ secrets.API_KEY }}
 
     steps:
       - name: Checkout branch

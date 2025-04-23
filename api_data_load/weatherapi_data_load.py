@@ -14,7 +14,7 @@ from snowflake.sqlalchemy import URL
 
 # ---------- Load Credentials from GitHub Secrets ----------
 # These values are securely injected by GitHub Actions using repository secrets.
-WEATHERSTACK_API_KEY = os.environ["WEATHERSTACK_API_KEY"]
+API_KEY = os.environ["API_KEY"]
 
 SNOWFLAKE_USER = os.environ["SNOWFLAKE_USER"]
 SNOWFLAKE_PASSWORD = urllib.parse.quote_plus(os.environ["SNOWFLAKE_PASSWORD"])
@@ -159,4 +159,4 @@ if __name__ == "__main__":
     cities = load_yaml_config(config_path)
     
     # Run the ETL pipeline
-    main(WEATHERSTACK_API_KEY, cities, SNOWFLAKE_SCHEMA, SNOWFLAKE_TABLE)
+    main(API_KEY, cities, SNOWFLAKE_SCHEMA, SNOWFLAKE_TABLE)
