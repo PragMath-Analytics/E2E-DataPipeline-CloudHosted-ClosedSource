@@ -17,6 +17,9 @@ jobs:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
       SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      FIVETRAN_API_KEY: ${{ secrets.FIVETRAN_API_KEY }}
+      FIVETRAN_API_SECRET: ${{ secrets.FIVETRAN_API_SECRET }}
+      FIVETRAN_CONNECTOR_GCP: ${{ secrets.FIVETRAN_CONNECTOR_GCP }}
 
     steps:
       - name: Checkout branch
@@ -34,6 +37,12 @@ jobs:
       - name: Run weather loading script
         working-directory: api_data_load
         run: python weatherapi_data_load.py
+
+      - name: Trigger Connector 1
+        run: |
+          curl -X POST https://api.fivetran.com/v1/connectors/${FIVETRAN_CONNECTOR_GCP}/force \
+            -u "${FIVETRAN_API_KEY}:${FIVETRAN_API_SECRET}" \
+            -H "Content-Type: application/json"
 
       - name: Install dbt
         run: pip install dbt-snowflake
