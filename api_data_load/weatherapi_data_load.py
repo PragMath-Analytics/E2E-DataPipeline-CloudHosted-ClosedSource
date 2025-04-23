@@ -1,31 +1,37 @@
 """
-
 Fetches real-time weather data for a list of cities from the Weatherstack API and loads it
-into a PostgreSQL database. The list of cities is read from a YAML config file, and all credentials
-are loaded from environment variables. The script normalizes the data and inserts it into a
-target schema and table.
-
-Steps:
-1. Load cities from a YAML file
-2. Load credentials from environment variables
-3. Fetch, normalize, and insert weather data for each city
-
+into a Snowflake warehouse. The list of cities is read from a YAML config file.
+All credentials are securely loaded from GitHub Secrets (via environment variables).
 """
 
 import os
-import yaml
 import requests
 import pandas as pd
 import urllib.parse
+import yaml
 from sqlalchemy import create_engine, text
+from snowflake.sqlalchemy import URL
+
+# ---------- Load Credentials from GitHub Secrets ----------
+# These values are securely injected by GitHub Actions using repository secrets.
+WEATHERSTACK_API_KEY = os.environ["WEATHERSTACK_API_KEY"]
+
+SNOWFLAKE_USER = os.environ["SNOWFLAKE_USER"]
+SNOWFLAKE_PASSWORD = urllib.parse.quote_plus(os.environ["SNOWFLAKE_PASSWORD"])
+SNOWFLAKE_ACCOUNT = os.environ["SNOWFLAKE_ACCOUNT"]
+SNOWFLAKE_WAREHOUSE = os.environ["SNOWFLAKE_WAREHOUSE"]
+SNOWFLAKE_DATABASE = os.environ["SNOWFLAKE_DATABASE"]
+SNOWFLAKE_SCHEMA = os.environ["SNOWFLAKE_SCHEMA"]
+SNOWFLAKE_TABLE = os.environ["SNOWFLAKE_TABLE"]
 
 # ---------- Config Loaders ----------
 def load_yaml_config(path: str) -> list:
     """
-    Load the list of cities from a YAML configuration file.
+    Loads a list of city names from a YAML configuration file.
+    This helps separate data logic from code logic.
 
     Args:
-        path (str): Path to the YAML config file.
+        path (str): Path to the YAML file.
 
     Returns:
         list: List of city names.
@@ -34,38 +40,39 @@ def load_yaml_config(path: str) -> list:
         config = yaml.safe_load(file)
     return config["cities"]
 
-
+# ---------- Snowflake Engine ----------
 def get_db_engine():
     """
-    Create and return a SQLAlchemy engine for PostgreSQL.
-
-    Uses environment variables:
-        SLING_USER, SLING_PASSWORD, DATABASE_HOST, DATABASE_PORT
+    Creates and returns a SQLAlchemy engine configured for Snowflake.
 
     Returns:
-        sqlalchemy.Engine: SQLAlchemy engine for database connection.
+        sqlalchemy.Engine: A SQLAlchemy connection engine for Snowflake.
     """
-    db_user = os.environ["SLING_USER"]
-    db_password = urllib.parse.quote_plus(os.environ["SLING_PASSWORD"])
-    db_host = os.environ["DATABASE_HOST"]
-    db_port = os.environ["DATABASE_PORT"]
-    db_name = "analytics"
-    return create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}")
+    connection_url = URL(
+        account=SNOWFLAKE_ACCOUNT,
+        user=SNOWFLAKE_USER,
+        password=SNOWFLAKE_PASSWORD,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+    )
+    return create_engine(connection_url)
 
-# ---------- Weather Data Logic ----------
+# ---------- Weather Logic ----------
 def fetch_weather_data(city: str, api_key: str) -> dict:
     """
-    Fetch current weather data for a given city using the Weatherstack API.
+    Makes a GET request to the Weatherstack API to fetch current weather data
+    for a specific city.
 
     Args:
-        city (str): City name.
+        city (str): City name for which to fetch weather.
         api_key (str): API key for Weatherstack.
 
     Returns:
-        dict: Parsed JSON response from the API.
+        dict: JSON response from the API.
 
     Raises:
-        Exception: If the API response indicates an error.
+        Exception: If the API call fails or returns an error.
     """
     url = f"http://api.weatherstack.com/current?access_key={api_key}&query={urllib.parse.quote_plus(city)}"
     response = requests.get(url)
@@ -77,13 +84,14 @@ def fetch_weather_data(city: str, api_key: str) -> dict:
 
 def normalize_weather_data(data: dict) -> pd.DataFrame:
     """
-    Normalize and flatten the JSON response from the Weatherstack API.
+    Flattens and cleans the nested JSON structure from Weatherstack into
+    a pandas DataFrame, making it ready for Snowflake ingestion.
 
     Args:
-        data (dict): Raw JSON response.
+        data (dict): Raw weather JSON response.
 
     Returns:
-        pd.DataFrame: Flattened and cleaned weather data.
+        pd.DataFrame: Flattened weather data.
     """
     df = pd.json_normalize(data)
     df.columns = df.columns.str.replace(r"\.", "_", regex=True)
@@ -91,22 +99,22 @@ def normalize_weather_data(data: dict) -> pd.DataFrame:
 
 def ensure_schema_exists(engine, schema: str):
     """
-    Ensure the target schema exists in the PostgreSQL database.
+    Ensures the schema exists in Snowflake. If not, it creates it.
 
     Args:
-        engine (sqlalchemy.Engine): SQLAlchemy engine.
-        schema (str): Name of the schema to create if not exists.
+        engine (sqlalchemy.Engine): Snowflake connection engine.
+        schema (str): Schema name to validate or create.
     """
     with engine.begin() as conn:
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
 
 def insert_data(engine, df: pd.DataFrame, schema: str, table: str):
     """
-    Insert normalized weather data into the specified database table.
+    Appends the weather DataFrame to the target Snowflake table.
 
     Args:
-        engine (sqlalchemy.Engine): SQLAlchemy engine.
-        df (pd.DataFrame): Normalized weather data.
+        engine (sqlalchemy.Engine): Snowflake connection engine.
+        df (pd.DataFrame): Weather data to insert.
         schema (str): Target schema name.
         table (str): Target table name.
     """
@@ -116,13 +124,14 @@ def insert_data(engine, df: pd.DataFrame, schema: str, table: str):
 # ---------- Main Workflow ----------
 def main(api_key: str, cities: list, schema: str, table: str):
     """
-    Full ETL workflow to load weather data for multiple cities.
+    Coordinates the end-to-end flow: from API requests for each city, to
+    normalization, and loading into Snowflake.
 
     Args:
         api_key (str): Weatherstack API key.
-        cities (list): List of cities to fetch data for.
-        schema (str): Target schema in PostgreSQL.
-        table (str): Target table name.
+        cities (list): List of cities to process.
+        schema (str): Snowflake schema to insert into.
+        table (str): Snowflake table name.
     """
     try:
         engine = get_db_engine()
@@ -132,22 +141,22 @@ def main(api_key: str, cities: list, schema: str, table: str):
             print(f"\n📡 Fetching weather data for {city}...")
             raw_data = fetch_weather_data(city, api_key)
 
-            print("🧪 Normalizing data...")
+            print("🧪 Normalizing...")
             df = normalize_weather_data(raw_data)
 
-            print("📥 Inserting data...")
+            print("📥 Inserting into Snowflake...")
             insert_data(engine, df, schema, table)
 
     except Exception as e:
         print(f"❌ Error occurred: {e}")
 
-# ---------- Entry Point ----------
+# ---------- Run ----------
 if __name__ == "__main__":
+    # Define the path to your city configuration YAML file
     config_path = os.path.join(os.environ["GITHUB_WORKSPACE"], "api_data_load", "api_config.yaml")
+    
+    # Load city names from config
     cities = load_yaml_config(config_path)
-    api_key = os.environ["API_KEY"]
-
-    DB_SCHEMA = "raw_weather"
-    TABLE_NAME = "weather_data"
-
-    main(api_key, cities, DB_SCHEMA, TABLE_NAME)
+    
+    # Run the ETL pipeline
+    main(WEATHERSTACK_API_KEY, cities, SNOWFLAKE_SCHEMA, SNOWFLAKE_TABLE)
