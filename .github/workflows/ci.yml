@@ -44,6 +44,8 @@ jobs:
         continue-on-error: true
 
   build-and-deploy:
+    name: Data Load & DBT Build
+    needs: lint-models
     runs-on: ubuntu-latest
     env:
       DBT_USER: ${{ secrets.DBT_USER }}
