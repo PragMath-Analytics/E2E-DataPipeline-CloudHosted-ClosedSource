@@ -1,0 +1,162 @@
+==== sqlfluff - rules ====
+AL01: [aliasing.table] Implicit/explicit aliasing of table.                     
+      groups: all, aliasing aliases: L011                                       
+AL02: [aliasing.column] Implicit/explicit aliasing of columns.                  
+      groups: all, core, aliasing aliases: L012                                 
+AL03: [aliasing.expression] Column expression without alias. Use explicit `AS`  
+      clause.                                                                   
+      groups: all, core, aliasing aliases: L013                                 
+AL04: [aliasing.unique.table] Table aliases should be unique within each clause.
+      groups: all, core, aliasing, aliasing.unique aliases: L020                
+AL05: [aliasing.unused] Tables should not be aliased if that alias is not used. 
+      groups: all, core, aliasing aliases: L025                                 
+AL06: [aliasing.length] Enforce table alias lengths in from clauses and join    
+      conditions.                                                               
+      groups: all, core, aliasing aliases: L066                                 
+AL07: [aliasing.forbid] Avoid table aliases in from clauses and join conditions.
+      groups: all, aliasing aliases: L031                                       
+AL08: [aliasing.unique.column] Column aliases should be unique within each      
+      clause.                                                                   
+      groups: all, core, aliasing, aliasing.unique                              
+AL09: [aliasing.self_alias.column] Column aliases should not alias to itself,   
+      i.e. self-alias.                                                          
+      groups: all, core, aliasing                                               
+AM01: [ambiguous.distinct] Ambiguous use of 'DISTINCT' in a 'SELECT' statement  
+      with 'GROUP BY'.                                                          
+      groups: all, core, ambiguous aliases: L021                                
+AM02: [ambiguous.union] 'UNION [DISTINCT|ALL]' is preferred over just 'UNION'.  
+      groups: all, core, ambiguous aliases: L033                                
+AM03: [ambiguous.order_by] Ambiguous ordering directions for columns in order by
+      clause.                                                                   
+      groups: all, ambiguous aliases: L037                                      
+AM05: [ambiguous.join] Join clauses should be fully qualified.                  
+      groups: all, ambiguous aliases: L051                                      
+AM06: [ambiguous.column_references] Inconsistent column references in 'GROUP    
+      BY/ORDER BY' clauses.                                                     
+      groups: all, core, ambiguous aliases: L054                                
+AM07: [ambiguous.set_columns] Queries within set query produce different numbers
+      of columns.                                                               
+      groups: all, ambiguous aliases: L068                                      
+AM08: [ambiguous.join_condition] Implicit cross join detected.                  
+      groups: all, ambiguous                                                    
+CP01: [capitalisation.keywords] Inconsistent capitalisation of keywords.        
+      groups: all, core, capitalisation aliases: L010                           
+CP03: [capitalisation.functions] Inconsistent capitalisation of function names. 
+      groups: all, core, capitalisation aliases: L030                           
+CP04: [capitalisation.literals] Inconsistent capitalisation of boolean/null     
+      literal.                                                                  
+      groups: all, core, capitalisation aliases: L040                           
+CP05: [capitalisation.types] Inconsistent capitalisation of datatypes.          
+      groups: all, core, capitalisation aliases: L063                           
+CV01: [convention.not_equal] Consistent usage of '!=' or '<>' for "not equal to"
+      operator.                                                                 
+      groups: all, convention aliases: L061                                     
+CV02: [convention.coalesce] Use 'COALESCE' instead of 'IFNULL' or 'NVL'.        
+      groups: all, convention aliases: L060                                     
+CV03: [convention.select_trailing_comma] Trailing commas within select clause.  
+      groups: all, core, convention aliases: L038                               
+CV04: [convention.count_rows] Use consistent syntax to express "count number of 
+      rows".                                                                    
+      groups: all, core, convention aliases: L047                               
+CV05: [convention.is_null] Comparisons with NULL should use "IS" or "IS NOT".   
+      groups: all, core, convention aliases: L049                               
+CV06: [convention.terminator] Statements must end with a semi-colon.            
+      groups: all, convention aliases: L052                                     
+CV07: [convention.statement_brackets] Top-level statements should not be wrapped
+      in brackets.                                                              
+      groups: all, convention aliases: L053                                     
+CV08: [convention.left_join] Use 'LEFT JOIN' instead of 'RIGHT JOIN'.           
+      groups: all, convention aliases: L055                                     
+CV09: [convention.blocked_words] Block a list of configurable words from being  
+      used.                                                                     
+      groups: all, convention aliases: L062                                     
+CV10: [convention.quoted_literals] Consistent usage of preferred quotes for     
+      quoted literals.                                                          
+      groups: all, convention aliases: L064                                     
+CV11: [convention.casting_style] Enforce consistent type casting style.         
+      groups: all, convention aliases: L067                                     
+CV12: [convention.join_condition] Use `JOIN ... ON ...` instead of `WHERE ...`  
+      for join conditions.                                                      
+      groups: all, convention                                                   
+JJ01: [jinja.padding] Jinja tags should have a single whitespace on either side.
+      groups: all, core, jinja aliases: L046                                    
+LT01: [layout.spacing] Inappropriate Spacing.                                   
+      groups: all, core, layout aliases: L001, L005, L006, L008, L023, L024,    
+      L039, L048, L071                                                          
+LT02: [layout.indent] Incorrect Indentation.                                    
+      groups: all, core, layout aliases: L002, L003, L004                       
+LT03: [layout.operators] Operators should follow a standard for being           
+      before/after newlines.                                                    
+      groups: all, layout aliases: L007                                         
+LT04: [layout.commas] Leading/Trailing comma enforcement.                       
+      groups: all, layout aliases: L019                                         
+LT05: [layout.long_lines] Line is too long.                                     
+      groups: all, core, layout aliases: L016                                   
+LT06: [layout.functions] Function name not immediately followed by parenthesis. 
+      groups: all, core, layout aliases: L017                                   
+LT07: [layout.cte_bracket] 'WITH' clause closing bracket should be on a new     
+      line.                                                                     
+      groups: all, core, layout aliases: L018                                   
+LT08: [layout.cte_newline] Blank line expected but not found after CTE closing  
+      bracket.                                                                  
+      groups: all, core, layout aliases: L022                                   
+LT09: [layout.select_targets] Select targets should be on a new line unless     
+      there is only one select target.                                          
+      groups: all, layout aliases: L036                                         
+LT10: [layout.select_modifiers] 'SELECT' modifiers (e.g. 'DISTINCT') must be on 
+      the same line as 'SELECT'.                                                
+      groups: all, core, layout aliases: L041                                   
+LT11: [layout.set_operators] Set operators should be surrounded by newlines.    
+      groups: all, core, layout aliases: L065                                   
+LT12: [layout.end_of_file] Files must end with a single trailing newline.       
+      groups: all, core, layout aliases: L009, layout.end-of-file               
+LT13: [layout.start_of_file] Files must not begin with newlines or whitespace.  
+      groups: all, layout aliases: L050                                         
+LT14: [layout.keyword_newline] Keyword clauses should follow a standard for     
+      being before/after newlines.                                              
+      groups: all, layout                                                       
+LT15: [layout.newlines] Too many consecutive blank lines.                       
+      groups: all, layout                                                       
+RF01: [references.from] References cannot reference objects not present in      
+      'FROM' clause.                                                            
+      groups: all, core, references aliases: L026                               
+RF02: [references.qualification] References should be qualified if select has   
+      more than one referenced table/view.                                      
+      groups: all, references aliases: L027                                     
+RF03: [references.consistent] Column references should be qualified consistently
+      in single table statements.                                               
+      groups: all, references aliases: L028                                     
+RF04: [references.keywords] Keywords should not be used as identifiers.         
+      groups: all, references aliases: L029                                     
+RF05: [references.special_chars] Do not use special characters in identifiers.  
+      groups: all, references aliases: L057                                     
+RF06: [references.quoting] Unnecessary quoted identifier.                       
+      groups: all, references aliases: L059                                     
+ST01: [structure.else_null] Do not specify 'else null' in a case when statement 
+      (redundant).                                                              
+      groups: all, structure aliases: L035                                      
+ST02: [structure.simple_case] Unnecessary 'CASE' statement.                     
+      groups: all, structure aliases: L043                                      
+ST03: [structure.unused_cte] Query defines a CTE (common-table expression) but  
+      does not use it.                                                          
+      groups: all, core, structure aliases: L045                                
+ST04: [structure.nested_case] Nested 'CASE' statement in 'ELSE' clause could be 
+      flattened.                                                                
+      groups: all, structure aliases: L058                                      
+ST05: [structure.subquery] Join/From clauses should not contain subqueries. Use 
+      CTEs instead.                                                             
+      groups: all, structure aliases: L042                                      
+ST07: [structure.using] Prefer specifying join keys instead of using 'USING'.   
+      groups: all, structure aliases: L032                                      
+ST08: [structure.distinct] 'DISTINCT' used with parentheses.                    
+      groups: all, structure, core aliases: L015                                
+ST09: [structure.join_condition_order] Joins should list the table referenced   
+      earlier/later first.                                                      
+      groups: all, structure                                                    
+ST10: [structure.constant_expression] Redundant constant expression.            
+      groups: all, structure                                                    
+ST11: [structure.unused_join] Joined table not referenced in query.             
+      groups: all, structure                                                    
+TQ01: [tsql.sp_prefix] 'SP_' prefix should not be used for user-defined stored  
+      procedures in T-SQL.                                                      
+      groups: all, tsql aliases: L056                                           
