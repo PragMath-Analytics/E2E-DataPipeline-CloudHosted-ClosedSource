@@ -1,0 +1,35 @@
+[sqlfluff]
+dialect = snowflake
+templater = dbt
+exclude_rules = AM01, AM02, AM06, ST01, ST02, ST03, ST04, ST06, RF01, RF02, RF03, RF04, RF05, RF06, CV01, CV02, CV03, CV04, CV05, CV06, CV07, CV08, CV09, CV10, CV11, CV12, LT05
+runaway_limit = 10
+max_line_length = 80
+indent_unit = space
+
+# Feel free to change these as you like:
+
+[sqlfluff:templater:dbt]
+profiles_dir = _project_docs/automation
+project_dir = .
+
+[sqlfluff:indentation]
+tab_space_size = 4
+
+[sqlfluff:layout:type:comma]
+spacing_before = touch
+line_position = trailing
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.types]
+capitalisation_policy = lower

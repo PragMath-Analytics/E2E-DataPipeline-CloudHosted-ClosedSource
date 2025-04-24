@@ -3,9 +3,49 @@ name: CI
 on:
   pull_request:
     branches: [ "main" ]
+    
+env:
+  DBT_USER: ${{ secrets.DBT_USER }}
+  DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+  DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+  API_KEY: ${{ secrets.API_KEY }}
+  SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+  SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+  SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+  SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+
 
 jobs:
+  lint-models:
+    name: SQLFluff Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dbt
+        run: pip install dbt-snowflake
+      
+      - name: Install dbt Packages
+        run: dbt deps
+
+      - name: Install SQLFluff
+        run: |
+          pip install sqlfluff sqlfluff-templater-dbt
+
+      - name: Run SQLFluff Fix
+        run: sqlfluff fix models/
+        continue-on-error: true
+
   build-and-deploy:
+    name: Data Load & DBT Build
+    needs: lint-models
     runs-on: ubuntu-latest
     env:
       DBT_USER: ${{ secrets.DBT_USER }}
