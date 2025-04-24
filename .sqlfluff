@@ -9,7 +9,8 @@ indent_unit = space
 # Feel free to change these as you like:
 
 [sqlfluff:templater:dbt]
-profiles_dir = D:\OneDrive - prag-math.com\Work_TT\Training\Gitrepos\dbt_E2ECLOSED
+profiles_dir = _project_docs/automation
+project_dir = .
 
 [sqlfluff:indentation]
 tab_space_size = 4
